@@ -90,6 +90,8 @@ const parseInput = () => {
   const value = input.value;
   console.log(value);
 
+  const allRequests = [];
+
   newHtml = ``;
   for (let i = 0; i < value.length; i++) {
     const currentChar = value[i].toLowerCase();
@@ -97,12 +99,32 @@ const parseInput = () => {
     if (!charDetails) {
       continue;
     }
-    const charHtml = `
-      <div class="character ${charDetails.flip}"><img src="./assets/System_Alphabet_${currentChar.toUpperCase()}.svg"></div>`;
-    newHtml += charHtml;
+    const request = fetch(`./assets/System_Alphabet_${currentChar.toUpperCase()}.svg`)
+    .then((response) => {
+      return response.text();
+    })
+    .then((svgText) => {
+      return {
+        svgText,
+        currentChar,
+        charDetails
+      };
+    });
+    allRequests.push(request);
   }
 
-  textContainer.innerHTML = newHtml;
+  Promise.all(allRequests)
+  .then((charInfos) => {
+    console.log(charInfos);
+    for(let i = 0; i < charInfos.length; i++) {
+      const charInfo = charInfos[i];
+      const charHtml = `
+        <div class="character ${charInfo.charDetails.flip} ${charInfo.currentChar}">${charInfo.svgText}</div>`;
+      newHtml += charHtml;
+    }
+    textContainer.innerHTML = newHtml;
+  });
+
 };
 parseInput();
 input.addEventListener('input', parseInput);

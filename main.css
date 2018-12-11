@@ -22,13 +22,17 @@ h1 {
   margin-bottom: 5px;
 }
 
-.character img {
+.character svg {
   height: 4rem;
 }
 
-.character.vertical img {
+.character.vertical svg {
   height: 2rem;
 }
-.character.horizontal img {
+.character.horizontal svg {
 
+}
+
+svg .st0 {
+  fill: green !important;
 }
