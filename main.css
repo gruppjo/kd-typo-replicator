@@ -17,3 +17,18 @@ h1 {
 #text-container {
   font-size: 5rem;
 }
+
+.character {
+  margin-bottom: 5px;
+}
+
+.character img {
+  height: 4rem;
+}
+
+.character.vertical img {
+  height: 2rem;
+}
+.character.horizontal img {
+
+}
