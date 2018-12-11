@@ -1,0 +1,19 @@
+
+html {
+  font-size: 14px;
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+#input {
+  height: 4rem;
+  font-size: 2rem;
+  width: 100%;
+  border: 2px solid black;
+}
+
+#text-container {
+  font-size: 5rem;
+}
