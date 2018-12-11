@@ -23,15 +23,17 @@ h1 {
   display:block;
 }
 
+
+/* CHARACTER */
 .character {
   margin:1px;
-  min-width: 7px; /* for space character */
-  min-height: 1rem; /* for space vertical */
+  min-width: 12px; /* for space character */
+  min-height: 1.5rem; /* for space vertical */
   display:flex;
 }
 
 .character svg {
-  height: 2rem;
+  height: 3rem;
   display:block;
 }
 
@@ -41,12 +43,18 @@ h1 {
   flex-grow: 0;
 }
 .character.vertical svg {
-  height: 1rem;
-
+  height: 1.5rem;
 }
-.character.horizontal svg {
+.character.vertical-horizontal{
+  flex-direction: column;
+  align-items: flex-start; /* prevent svg from stretching to 100% */
+  flex-grow: 0;
+}
+.character.vertical-horizontal svg {
+  height: 1.5rem;
 }
 
 svg .st0 {
-  fill: green !important;
+  fill: turquoise !important;
+  transition: fill .5s ease;
 }

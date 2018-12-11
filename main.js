@@ -1,5 +1,7 @@
 const inputText = document.querySelector('#input-text');
 const inputCheckbox = document.querySelector('#input-checkbox');
+const inputColor = document.querySelector('#input-color');
+const inputButton = document.querySelector('#input-button');
 const textContainer = document.querySelector('#text-container');
 
 const availableChars = {
@@ -46,7 +48,7 @@ const availableChars = {
     flip: 'horizontal',
   },
   n: {
-    flip: 'horizontal'
+    flip: 'horizontal-vertical'
   },
   o: {
     flip: 'vertical'
@@ -61,7 +63,7 @@ const availableChars = {
     flip: false
   },
   s: {
-    flip: 'vertical'
+    flip: 'vertical-horizontal'
   },
   t: {
     flip: 'horizontal'
@@ -82,12 +84,36 @@ const availableChars = {
     flip: 'horizontal'
   },
   z: {
-    flip: 'vertical'
+    flip: 'vertical-horizontal'
   }
 };
 
-const availableCharsText = Object.keys(availableChars).join('');
 
+
+// CHECKBOX
+inputCheckbox.addEventListener('change', () => {
+  if (inputCheckbox.checked) {
+    textContainer.classList.add('vertical');
+  }
+  else {
+    textContainer.classList.remove('vertical');
+  }
+});
+
+// COLOR
+const changeColor = () => {
+  const paths = document.querySelectorAll('svg .st0');
+  Array.from(paths).forEach((path) => {
+    console.log(inputColor.value + ' !important');
+    // why doesn't path.style.fill work?
+    path.setAttribute('style', 'fill: ' + inputColor.value + ' !important');
+  });
+};
+inputButton.addEventListener('click', changeColor);
+
+// WELCOME TExt
+const availableCharsText = Object.keys(availableChars).join('');
+// inputText.value = 'nsz';
 inputText.value = 'HI ANIKA HI GEORG';
 
 const svgFlip = (svgText, flipDirection) => {
@@ -145,21 +171,14 @@ const parseInput = () => {
       newHtml += charHtml;
     }
     textContainer.innerHTML = newHtml;
+
+    // persist color change
+    changeColor();
   });
 
 };
+
+
 parseInput();
 inputText.addEventListener('input', parseInput);
-
-
-
-// CHECKBOX
-inputCheckbox.addEventListener('change', (event) => {
-  if(inputCheckbox.checked) {
-    textContainer.classList.add('vertical');
-  }
-  else {
-    textContainer.classList.remove('vertical');
-  }
-})
 
