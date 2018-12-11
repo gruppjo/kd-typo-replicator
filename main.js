@@ -31,10 +31,62 @@ const availableChars = {
   },
   j: {
     flip: false,
-  }
-}
+	},
+	k: {
+		flip: false,
+	},
+	l: {
+		flip: false,
+	},
+	m: {
+		flip: 'horizontal',
+	},
+	n: {
+		flip: false
+	},
+	o: {
+		flip: 'vertical'
+	},
+	p: {
+		flip: false
+	},
+	q: {
+		flip: false
+	},
+	r: {
+		flip: false
+	},
+	s: {
+		flip: 'vertical'
+	},
+	t: {
+		flip: 'horizontal'
+	},
+	u: {
+		flip: 'horizontal'
+	},
+	v: {
+		flip: 'horizontal'
+	},
+	w: {
+		flip: 'horizontal'
+	},
+	x: {
+		flip: 'vertical'
+	},
+	y: {
+		flip: 'horizontal'
+	},
+	z: {
+		flip: 'vertical'
+	}
+};
 
-input.addEventListener('input', () => {
+const availableCharsText = Object.keys(availableChars).join('');
+
+input.value = availableCharsText;
+
+const parseInput = () => {
   const value = input.value;
   console.log(value);
 
@@ -43,7 +95,7 @@ input.addEventListener('input', () => {
     const currentChar = value[i].toLowerCase();
     const charDetails = availableChars[currentChar];
     if (!charDetails) {
-		  return
+		  continue;
     }
     const charHtml = `
       <div class="character ${charDetails.flip}"><img src="./assets/System_Alphabet_${currentChar.toUpperCase()}.svg"></div>`;
@@ -51,4 +103,7 @@ input.addEventListener('input', () => {
   }
 
   textContainer.innerHTML = newHtml;
-});
+};
+parseInput();
+input.addEventListener('input', parseInput);
+
