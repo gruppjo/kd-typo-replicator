@@ -54,6 +54,10 @@ h1 {
   height: 1.5rem;
 }
 
+.character.vertical.no-duplicate svg {
+  margin-top: 1.5rem;
+}
+
 svg .st0 {
   fill: turquoise !important;
   transition: fill .5s ease;

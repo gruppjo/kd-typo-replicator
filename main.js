@@ -1,5 +1,7 @@
 const inputText = document.querySelector('#input-text');
-const inputCheckbox = document.querySelector('#input-checkbox');
+const inputVertical = document.querySelector('#input-vertical');
+const inputDuplicate = document.querySelector('#input-duplicate');
+const inputFlip = document.querySelector('#input-flip');
 const inputColor = document.querySelector('#input-color');
 const inputButton = document.querySelector('#input-button');
 const textContainer = document.querySelector('#text-container');
@@ -90,14 +92,28 @@ const availableChars = {
 
 
 
-// CHECKBOX
-inputCheckbox.addEventListener('change', () => {
-  if (inputCheckbox.checked) {
+// Vertical
+inputVertical.addEventListener('change', () => {
+  if (inputVertical.checked) {
     textContainer.classList.add('vertical');
   }
   else {
     textContainer.classList.remove('vertical');
   }
+});
+
+let duplicate = true;
+// Duplizieren
+inputDuplicate.addEventListener('change', () => {
+  duplicate = inputDuplicate.checked;
+  parseInput();
+});
+
+let flip = true;
+// Flip
+inputFlip.addEventListener('change', () => {
+  flip = inputFlip.checked;
+  parseInput();
 });
 
 // COLOR
@@ -173,12 +189,12 @@ const parseInput = () => {
       const charInfo = charInfos[i];
       // process svg as inline
       let charHtml = `
-        <div class="character ${charInfo.charDetails.flip} ${charInfo.currentChar}">`;
+        <div class="character ${charInfo.charDetails.flip} ${!duplicate ? 'no-duplicate' : ''} ${charInfo.currentChar}">`;
       // flip?
-      if (charInfo.charDetails.flip) {
-        charHtml += `${svgFlip(charInfo.svgText, charInfo.charDetails.flip)}`;
+      if (charInfo.charDetails.flip && duplicate) {
+        charHtml += `${flip ? svgFlip(charInfo.svgText, charInfo.charDetails.flip) : charInfo.svgText}`;
       }
-      charHtml += `${charInfo.svgText}</div></div>`;
+      charHtml += `${charInfo.svgText}</div>`;
       newHtml += charHtml;
     }
     textContainer.innerHTML = newHtml;
