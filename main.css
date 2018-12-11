@@ -7,30 +7,44 @@ h1 {
   font-size: 3rem;
 }
 
-#input {
+#input-text {
   height: 4rem;
   font-size: 2rem;
   width: 100%;
   border: 2px solid black;
+
+  margin-bottom: 1rem;
 }
 
 #text-container {
-  font-size: 5rem;
+  display: flex;
+}
+#text-container.vertical {
+  display:block;
 }
 
 .character {
-  margin-bottom: 5px;
+  margin:1px;
+  min-width: 7px; /* for space character */
+  min-height: 1rem; /* for space vertical */
+  display:flex;
 }
 
 .character svg {
-  height: 4rem;
+  height: 2rem;
+  display:block;
 }
 
+.character.vertical {
+  flex-direction: column;
+  align-items: flex-start; /* prevent svg from stretching to 100% */
+  flex-grow: 0;
+}
 .character.vertical svg {
-  height: 2rem;
+  height: 1rem;
+
 }
 .character.horizontal svg {
-
 }
 
 svg .st0 {

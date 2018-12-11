@@ -1,7 +1,11 @@
-const input = document.querySelector('#input');
+const inputText = document.querySelector('#input-text');
+const inputCheckbox = document.querySelector('#input-checkbox');
 const textContainer = document.querySelector('#text-container');
 
 const availableChars = {
+  ' ': {
+    flip: false
+  },
   a: {
     flip: 'horizontal',
   },
@@ -42,7 +46,7 @@ const availableChars = {
     flip: 'horizontal',
   },
   n: {
-    flip: false
+    flip: 'horizontal'
   },
   o: {
     flip: 'vertical'
@@ -84,10 +88,17 @@ const availableChars = {
 
 const availableCharsText = Object.keys(availableChars).join('');
 
-input.value = availableCharsText;
+inputText.value = 'HI ANIKA HI GEORG';
+
+const svgFlip = (svgText, flipDirection) => {
+  const x = flipDirection.includes('horizontal') ? -1 : 1;
+  const y = flipDirection.includes('vertical') ? -1 : 1;
+  const style = `style="transform: scale(${x}, ${y})"`;
+  return svgText.replace('svg', `svg ${style}`);
+}
 
 const parseInput = () => {
-  const value = input.value;
+  const value = inputText.value;
   console.log(value);
 
   const allRequests = [];
@@ -124,8 +135,13 @@ const parseInput = () => {
     for(let i = 0; i < charInfos.length; i++) {
       const charInfo = charInfos[i];
       // process svg as inline
-      const charHtml = `
-        <div class="character ${charInfo.charDetails.flip} ${charInfo.currentChar}">${charInfo.svgText}</div>`;
+      let charHtml = `
+        <div class="character ${charInfo.charDetails.flip} ${charInfo.currentChar}">`;
+      // flip?
+      if (charInfo.charDetails.flip) {
+        charHtml += `${svgFlip(charInfo.svgText, charInfo.charDetails.flip)}`;
+      }
+      charHtml += `${charInfo.svgText}</div></div>`;
       newHtml += charHtml;
     }
     textContainer.innerHTML = newHtml;
@@ -133,5 +149,17 @@ const parseInput = () => {
 
 };
 parseInput();
-input.addEventListener('input', parseInput);
+inputText.addEventListener('input', parseInput);
+
+
+
+// CHECKBOX
+inputCheckbox.addEventListener('change', (event) => {
+  if(inputCheckbox.checked) {
+    textContainer.classList.add('vertical');
+  }
+  else {
+    textContainer.classList.remove('vertical');
+  }
+})
 
