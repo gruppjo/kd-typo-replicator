@@ -99,11 +99,15 @@ const parseInput = () => {
     if (!charDetails) {
       continue;
     }
+
+    // fetch svg as text
     const request = fetch(`./assets/System_Alphabet_${currentChar.toUpperCase()}.svg`)
     .then((response) => {
       return response.text();
     })
     .then((svgText) => {
+      // make all ids unique otherwise defs and references interfere with each other
+      svgText = svgText.replace('SVGID', `SVGID${currentChar}${i}`);
       return {
         svgText,
         currentChar,
@@ -113,11 +117,13 @@ const parseInput = () => {
     allRequests.push(request);
   }
 
+  // make sure characters get processed in right order
   Promise.all(allRequests)
   .then((charInfos) => {
     console.log(charInfos);
     for(let i = 0; i < charInfos.length; i++) {
       const charInfo = charInfos[i];
+      // process svg as inline
       const charHtml = `
         <div class="character ${charInfo.charDetails.flip} ${charInfo.currentChar}">${charInfo.svgText}</div>`;
       newHtml += charHtml;
