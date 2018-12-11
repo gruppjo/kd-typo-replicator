@@ -6,7 +6,7 @@ const textContainer = document.querySelector('#text-container');
 
 const availableChars = {
   ' ': {
-    flip: false
+    noSvg: true
   },
   a: {
     flip: 'horizontal',
@@ -104,7 +104,6 @@ inputCheckbox.addEventListener('change', () => {
 const changeColor = () => {
   const paths = document.querySelectorAll('svg .st0');
   Array.from(paths).forEach((path) => {
-    console.log(inputColor.value + ' !important');
     // why doesn't path.style.fill work?
     path.setAttribute('style', 'fill: ' + inputColor.value + ' !important');
   });
@@ -137,20 +136,32 @@ const parseInput = () => {
       continue;
     }
 
+    let request;
     // fetch svg as text
-    const request = fetch(`./assets/System_Alphabet_${currentChar.toUpperCase()}.svg`)
-    .then((response) => {
-      return response.text();
-    })
-    .then((svgText) => {
-      // make all ids unique otherwise defs and references interfere with each other
-      svgText = svgText.replace('SVGID', `SVGID${currentChar}${i}`);
-      return {
-        svgText,
-        currentChar,
-        charDetails
-      };
-    });
+    if (charDetails.noSvg) {
+      request = new Promise((resolve, reject) => {
+        resolve({
+          svgText: ' ',
+          currentChar,
+          charDetails
+        });
+      })
+    }
+    else {
+      request = fetch(`./assets/System_Alphabet_${currentChar.toUpperCase()}.svg`)
+      .then((response) => {
+        return response.text();
+      })
+      .then((svgText) => {
+        // make all ids unique otherwise defs and references interfere with each other
+        svgText = svgText.replace('SVGID', `SVGID${currentChar}${i}`);
+        return {
+          svgText,
+          currentChar,
+          charDetails
+        };
+      });
+    }
     allRequests.push(request);
   }
 
