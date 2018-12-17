@@ -6,12 +6,15 @@
   </head>
   <body>
     <h1>Typo Replicator</h1>
-    <input id="input-vertical" type="checkbox"> Vertikal?
-    <input id="input-duplicate" type="checkbox" checked> Duplizieren?
-    <input id="input-flip" type="checkbox" checked> Flip?
-    <input id="input-color" type="text" value="turquoise"> hexcolor
-    <input id="input-button" type="button" value="Farbe Anwenden">
-    <input id="input-text" type="text">
+    <section id="nav-configuration">
+      <input id="input-vertical" type="checkbox"> <label for="input-vertical">Vertikal?</label>
+      <input id="input-duplicate" type="checkbox" checked> Duplizieren?
+      <input id="input-flip" type="checkbox" checked> Flip?
+      <input id="input-color" type="text" value="turquoise"> <label for="input-color">hexcolor</label>
+      <input id="input-button" type="button" value="Farbe Anwenden">
+    </section>
+
+    <input id="input-text" type="text" autofocus>
     <div id="text-container">
 
     </div>

@@ -1,6 +1,6 @@
 
 html {
-  font-size: 14px;
+  font-size: 18px;
 }
 
 h1 {
@@ -12,12 +12,17 @@ h1 {
   font-size: 2rem;
   width: 100%;
   border: 2px solid black;
-
+  margin-top: .5rem;
   margin-bottom: 1rem;
+}
+
+#nav-configuration {
+  font-family: monospace;
 }
 
 #text-container {
   display: flex;
+  flex-wrap: wrap;
 }
 #text-container.vertical {
   display:block;
@@ -27,9 +32,14 @@ h1 {
 /* CHARACTER */
 .character {
   margin:1px;
+  margin-bottom: 25px;
   min-width: 12px; /* for space character */
   min-height: 1.5rem; /* for space vertical */
   display:flex;
+}
+
+.character.q svg {
+  height: calc(3rem + 5px);
 }
 
 .character svg {
@@ -59,6 +69,6 @@ h1 {
 }
 
 svg .st0 {
-  fill: turquoise !important;
+  fill: black !important;
   transition: fill .5s ease;
 }

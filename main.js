@@ -1,10 +1,30 @@
+const FEATURES = {
+  allowVerticalText: false,
+  allowColorizeText: false
+};
+
 const inputText = document.querySelector('#input-text');
-const inputVertical = document.querySelector('#input-vertical');
+const textContainer = document.querySelector('#text-container');
+
 const inputDuplicate = document.querySelector('#input-duplicate');
 const inputFlip = document.querySelector('#input-flip');
+
+const inputVertical = document.querySelector('#input-vertical');
+if (!FEATURES.allowVerticalText) {
+  inputVertical.style.display = 'none';
+  const inputVerticalLabel = document.querySelector('[for=input-vertical]');
+  inputVerticalLabel.style.display = 'none';
+}
+
 const inputColor = document.querySelector('#input-color');
 const inputButton = document.querySelector('#input-button');
-const textContainer = document.querySelector('#text-container');
+if (!FEATURES.allowColorizeText) {
+  inputColor.style.display = 'none';
+  inputColor.value = 'black';
+  inputButton.style.display = 'none';
+  const inputColorLabel = document.querySelector('[for=input-color]');
+  inputColorLabel.style.display = 'none';
+}
 
 const availableChars = {
   ' ': {
