@@ -149,7 +149,7 @@ inputButton.addEventListener('click', changeColor);
 // WELCOME TExt
 const availableCharsText = Object.keys(availableChars).join('');
 // inputText.value = 'nsz';
-inputText.value = 'HI ANIKA HI GEORG';
+inputText.value = 'TYPE LETTERS';
 
 const svgFlip = (svgText, flipDirection) => {
   const x = flipDirection.includes('horizontal') ? -1 : 1;
@@ -158,13 +158,16 @@ const svgFlip = (svgText, flipDirection) => {
   return svgText.replace('svg', `svg ${style}`);
 }
 
+let interval;
 const parseInput = () => {
+  if (interval) {
+    clearInterval(interval);
+  }
   const value = inputText.value;
   console.log(value);
 
   const allRequests = [];
 
-  newHtml = ``;
   for (let i = 0; i < value.length; i++) {
     const currentChar = value[i].toLowerCase();
     const charDetails = availableChars[currentChar];
@@ -205,28 +208,30 @@ const parseInput = () => {
   Promise.all(allRequests)
   .then((charInfos) => {
     console.log(charInfos);
-    for(let i = 0; i < charInfos.length; i++) {
+    let newHtml = '';
+    // all except last character
+    for(let i = 0; i < charInfos.length - 1; i++) {
       const charInfo = charInfos[i];
-      // process svg as inline
-      let charHtml = `
-        <div class="character ${charInfo.charDetails.flip} ${!duplicate ? 'no-duplicate' : ''} ${charInfo.currentChar}">`;
-      // flip? - hack: always flip and on flip don't flip
-      // character svgs are improperly formatted
-      // mirrored characters
-      if (charInfo.charDetails.flip) {
-        charHtml += `${svgFlip(charInfo.svgText, charInfo.charDetails.flip)}`;
-        if (duplicate) {
-          charHtml += `${!flip ? svgFlip(charInfo.svgText, charInfo.charDetails.flip) : charInfo.svgText}`;
-        }
-      }
-      // non mirrored characters
-      else {
-        charHtml += `${charInfo.svgText}`;
-      }
-      charHtml += `</div>`;
+      const charHtml = getCharHtml(charInfo, duplicate, flip);
       newHtml += charHtml;
     }
-    textContainer.innerHTML = newHtml;
+    // last char
+    let iteration = 0;
+    const sequences = [
+      { duplicate: true, flip: false, invert: false },
+      { duplicate: true, flip: false, invert: true },
+      { duplicate: true, flip: true, invert: true },
+      { duplicate: true, flip: true, invert: false },
+    ];
+    interval = setInterval(() => {
+      const sequence = sequences[iteration];
+      const lastCharInfo = charInfos[charInfos.length - 1];
+      const charHtml = getCharHtml(lastCharInfo, sequence.duplicate, sequence.flip, sequence.invert);
+      // assign html
+      textContainer.innerHTML = newHtml + charHtml;
+      iteration++;
+      iteration = iteration % sequences.length;
+    }, 300);
 
     // persist color change
     changeColor();
@@ -234,6 +239,26 @@ const parseInput = () => {
 
 };
 
+const getCharHtml = (charInfo, duplicate, flip, invert) => {
+  // process svg as inline svg
+  let charHtml = `
+  <div class="character ${charInfo.charDetails.flip} ${!duplicate ? 'no-duplicate' : ''} ${charInfo.currentChar}">`;
+  // flip? - hack: always flip and on flip don't flip
+  // character svgs are improperly formatted
+  // mirrored characters
+  if (charInfo.charDetails.flip) {
+    charHtml += `${invert ? charInfo.svgText : svgFlip(charInfo.svgText, charInfo.charDetails.flip)}`;
+    if (duplicate) {
+      charHtml += `${!flip ? svgFlip(charInfo.svgText, charInfo.charDetails.flip) : charInfo.svgText}`;
+    }
+  }
+  // non mirrored characters
+  else {
+    charHtml += `${charInfo.svgText}`;
+  }
+  charHtml += `</div>`;
+  return charHtml
+}
 
 parseInput();
 inputText.addEventListener('input', parseInput);
