@@ -173,7 +173,7 @@ const parseInput = () => {
     }
 
     let request;
-    // fetch svg as text
+    // fetch svg file as text
     if (charDetails.noSvg) {
       request = new Promise((resolve, reject) => {
         resolve({
@@ -210,11 +210,20 @@ const parseInput = () => {
       // process svg as inline
       let charHtml = `
         <div class="character ${charInfo.charDetails.flip} ${!duplicate ? 'no-duplicate' : ''} ${charInfo.currentChar}">`;
-      // flip?
-      if (charInfo.charDetails.flip && duplicate) {
-        charHtml += `${flip ? svgFlip(charInfo.svgText, charInfo.charDetails.flip) : charInfo.svgText}`;
+      // flip? - hack: always flip and on flip don't flip
+      // character svgs are improperly formatted
+      // mirrored characters
+      if (charInfo.charDetails.flip) {
+        charHtml += `${svgFlip(charInfo.svgText, charInfo.charDetails.flip)}`;
+        if (duplicate) {
+          charHtml += `${!flip ? svgFlip(charInfo.svgText, charInfo.charDetails.flip) : charInfo.svgText}`;
+        }
       }
-      charHtml += `${charInfo.svgText}</div>`;
+      // non mirrored characters
+      else {
+        charHtml += `${charInfo.svgText}`;
+      }
+      charHtml += `</div>`;
       newHtml += charHtml;
     }
     textContainer.innerHTML = newHtml;
