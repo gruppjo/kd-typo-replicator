@@ -1,5 +1,9 @@
 'use strict';
 
+const CONFIG = {
+  canvasHologram: false
+};
+
 class CharsService {
   // use
   // .bootstrap
@@ -256,7 +260,8 @@ class InputArea extends React.Component {
     })
 
     return (
-      <div>
+      <div className="system">
+        <h1>Typo Replicator</h1>
         <section id="nav-configuration">
           <input id="input-vertical" type="checkbox" />
           <label htmlFor="input-vertical">Vertikal?</label>
@@ -271,9 +276,17 @@ class InputArea extends React.Component {
           onKeyDown={this.handleKeyDown}
           onChange={this.handleChange}
         />
-        <div id="text-container">
-          {svgChars}
-        </div>
+        {CONFIG.canvasHologram ?
+          (
+            <canvas id="canvas">
+            </canvas>
+          )
+          : (
+            <div id="text-container">
+              {svgChars}
+            </div>
+          )
+        }
       </div>
     );
   }
