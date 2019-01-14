@@ -6,20 +6,13 @@
   </head>
   <body>
     <h1>Typo Replicator</h1>
-    <section id="nav-configuration">
-      <input id="input-vertical" type="checkbox"> <label for="input-vertical">Vertikal?</label>
-      <input id="input-duplicate" type="checkbox" checked> Duplizieren?
-      <input id="input-flip" type="checkbox" checked> Flip?
-      <input id="input-color" type="text" value="turquoise"> <label for="input-color">hexcolor</label>
-      <input id="input-button" type="button" value="Farbe Anwenden">
-    </section>
+    <div id="system"></div>
 
-    <input id="input-text" type="text" autofocus>
     <div id="text-container">
 
     </div>
 
-    <div class="like_button_container"></div>
+    <!-- <div class="like_button_container"></div> -->
 
     <!-- scripts -->
 
@@ -28,8 +21,9 @@
     <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
     <!-- Load our React component. -->
-    <script src="src-js/like_button.js"></script>
+    <script src="src-js/system/index.js"></script>
+    <!-- <script src="src-js/like_button.js"></script> -->
 
-    <!-- <script src="main.js"></script> -->
+    <script src="main.js"></script>
   </body>
 </html>
