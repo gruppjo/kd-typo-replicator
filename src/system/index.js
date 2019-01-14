@@ -8,33 +8,60 @@ class CanvasRenderer {
   constructor(charsService) {
     this.charsService = charsService;
 
+    this.dom = {
+      canvas: null,
+      canvasWidth: 0,
+      canvasHeight: 0,
+    };
+    this.resetState();
+  }
+  resetState() {
+    this.config = {
+      lineHeight: 50,
+      paddingCharacter: 5,
+      paddingLine: 5,
+      repeat: 500
+    };
+
     this.state = {
       text: '',
-      offsetX: 0
-    }
+      ctx: null,
+      offsetX: 0,
+      offsetY: 0
+    };
   }
 
   setCanvas(canvas) {
     console.log('CanvasRenderer.canvas', canvas);
-    this.canvas = canvas;
+    this.dom.canvas = canvas;
     const boundingRect = canvas.getBoundingClientRect();
-    canvas.width = boundingRect.width;
-    canvas.height = boundingRect.height;
-    this.ctx = canvas.getContext('2d');
+    this.dom.canvasWidth = canvas.width = boundingRect.width;
+    this.dom.canvasHeight = canvas.height = boundingRect.height;
+    this.dom.ctx = canvas.getContext('2d');
   }
 
-  updateText(text) {
-    const canvas = this.canvas;
-    const ctx = this.ctx;
+  getCanvas() {
+    return this.dom.canvas;
+  }
+
+  updateText(text, repeat) {
+    this.stopRepeat();
+
     const charsService = this.charsService;
+    const canvasWidth = this.dom.canvasWidth;
+    const canvasHeight = this.dom.canvasHeight;
+    const ctx = this.dom.ctx;
     // console.log(text.length);
 
     if (!text.length || text.length === 1) { // also capture selecting all, then typing
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      this.resetState();
     }
     if (!text.length) {
       return;
     }
+
+    // char & its data
     const char = text[text.length - 1];
     const charData = charsService.charsData[char];
     const charDetails = charData.charDetails;
@@ -42,33 +69,80 @@ class CanvasRenderer {
     const img = new Image();
     img.onload = () => {
       console.log('draw image');
+      // charHeight/Width, aspectRatio
+      // characterOffsetY
       const aspectRatio = img.width / img.height;
-      const charHeight = 50;
-      const offsetX = 50 * (text.length - 1);
-      const offsetY = 0;
-      let width, height;
+      const lineHeight = this.config.lineHeight;
+      let characterOffsetY = 0;
+      let charWidth, charHeight;
       switch (charDetails.flip) {
         case 'horizontal': {
-          width = charHeight * aspectRatio;
-          height = charHeight;
+          charWidth = lineHeight * aspectRatio;
+          charHeight = lineHeight;
           break;
         }
         case 'vertical': {
-          width = charHeight / 2 * aspectRatio;
-          height = charHeight / 2;
+          charWidth = lineHeight / 2 * aspectRatio;
+          charHeight = lineHeight / 2;
+          characterOffsetY = lineHeight / 2;
           break;
         }
         default: {
-          width = charHeight * aspectRatio;
-          height = charHeight;
+          charWidth = lineHeight * aspectRatio;
+          charHeight = lineHeight;
         }
       }
+      // offsets, direction & collision detection
+      let offsetX = this.state.offsetX;
+      let offsetY = this.state.offsetY;
+
+      if (repeat) {
+        if (charDetails.flip.startsWith('horizontal')) {
+          offsetX += charWidth;
+        }
+        else {
+          offsetY += charHeight;
+        }
+      }
+
+      if (offsetX + charWidth > canvasWidth) {
+        offsetX = 0;
+        offsetY += lineHeight + this.config.paddingLine;
+      }
+      if (offsetY + lineHeight > canvasHeight) {
+        offsetY = 0;
+      }
+
+      // draw
       ctx.imageSmoothingEnabled = false;
       ctx.webkitImageSmoothingEnabled = false;
-      ctx.drawImage(img, offsetX, offsetY, width, height);
+      ctx.drawImage(img, offsetX, offsetY + characterOffsetY, charWidth, charHeight);
       console.log('width', img.width, charData);
+
+      // update state
+      if (!repeat) {
+        offsetX = offsetX + charWidth + this.config.paddingCharacter;
+      }
+      this.state.text = text;
+      this.state.offsetX = offsetX;
+      this.state.offsetY = offsetY;
+
+      // repeat
+      if (charDetails.flip) {
+        this.startRepeat();
+      }
     };
     img.src = charData.charUrl;
+  }
+
+  startRepeat() {
+    this.interval = window.setInterval(() => {
+      const text = this.state.text;
+      this.updateText(text + text[text.length - 1], true); // add same character
+    }, this.config.repeat);
+  }
+  stopRepeat() {
+    clearInterval(this.interval);
   }
 }
 
@@ -334,7 +408,7 @@ class InputArea extends React.Component {
     });
 
     if (CONFIG.canvasHologram) {
-      if (!canvasRenderer.canvas) {
+      if (!canvasRenderer.getCanvas()) {
         canvasRef = React.createRef();
         // TODO: super dirty HACK to make sure cavnasRef.current is set
         window.setTimeout(() => {
