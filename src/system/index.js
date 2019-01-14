@@ -1,8 +1,77 @@
 'use strict';
 
 const CONFIG = {
-  canvasHologram: false
+  canvasHologram: true
 };
+
+class CanvasRenderer {
+  constructor(charsService) {
+    this.charsService = charsService;
+
+    this.state = {
+      text: '',
+      offsetX: 0
+    }
+  }
+
+  setCanvas(canvas) {
+    console.log('CanvasRenderer.canvas', canvas);
+    this.canvas = canvas;
+    const boundingRect = canvas.getBoundingClientRect();
+    canvas.width = boundingRect.width;
+    canvas.height = boundingRect.height;
+    this.ctx = canvas.getContext('2d');
+  }
+
+  updateText(text) {
+    const canvas = this.canvas;
+    const ctx = this.ctx;
+    const charsService = this.charsService;
+    // console.log(text.length);
+
+    if (!text.length || text.length === 1) { // also capture selecting all, then typing
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    if (!text.length) {
+      return;
+    }
+    const char = text[text.length - 1];
+    const charData = charsService.charsData[char];
+    const charDetails = charData.charDetails;
+
+    const img = new Image();
+    img.onload = () => {
+      console.log('draw image');
+      const aspectRatio = img.width / img.height;
+      const charHeight = 50;
+      const offsetX = 50 * (text.length - 1);
+      const offsetY = 0;
+      let width, height;
+      switch (charDetails.flip) {
+        case 'horizontal': {
+          width = charHeight * aspectRatio;
+          height = charHeight;
+          break;
+        }
+        case 'vertical': {
+          width = charHeight / 2 * aspectRatio;
+          height = charHeight / 2;
+          break;
+        }
+        default: {
+          width = charHeight * aspectRatio;
+          height = charHeight;
+        }
+      }
+      ctx.imageSmoothingEnabled = false;
+      ctx.webkitImageSmoothingEnabled = false;
+      ctx.drawImage(img, offsetX, offsetY, width, height);
+      console.log('width', img.width, charData);
+    };
+    img.src = charData.charUrl;
+  }
+}
+
 
 class CharsService {
   // use
@@ -97,7 +166,7 @@ class CharsService {
     return this.fetchAllChars()
     .then((charsData) => {
       console.log('all loaded');
-      console.log(charsData);
+      console.log('charsData', charsData);
       this.charsData = {};
       charsData.map((charData) => {
         this.charsData[charData.char] = charData;
@@ -118,6 +187,7 @@ class CharsService {
 
       let request;
       // fetch svg file as text
+      const charUrl = `./assets/System_Alphabet_${char.toUpperCase()}.svg`;
       request = fetch(`./assets/System_Alphabet_${char.toUpperCase()}.svg`)
       .then((response) => {
         return response.text();
@@ -129,7 +199,8 @@ class CharsService {
         return {
           svgText,
           char,
-          charDetails
+          charDetails,
+          charUrl
         };
       });
       allRequests.push(request);
@@ -204,6 +275,8 @@ charsService.bootstrap()
   }
 });
 
+const canvasRenderer = new CanvasRenderer(charsService);
+
 class System extends React.Component {
   render() {
     return (
@@ -227,7 +300,7 @@ class InputArea extends React.Component {
     // console.log(event.key, event.keyCode);
     // clear on backspace
     if (event.keyCode === 8) { // backspace
-      console.log('clear');
+      // console.log('clear');
       // clear value
       this.setState({
         value: ''
@@ -249,15 +322,39 @@ class InputArea extends React.Component {
 
     // print character
     // change event doesn't fire on backspace with onKeyDown
-    const char = value[value.length - 1];
-    console.log(char);
+    // const char = value[value.length - 1];
+    // console.log(char);
   }
 
   render() {
+    let canvasRef;
 
     const svgChars = this.state.value.split('').map((char) => {
       return charsService.getCharJSX(char);
-    })
+    });
+
+    if (CONFIG.canvasHologram) {
+      if (!canvasRenderer.canvas) {
+        canvasRef = React.createRef();
+        // TODO: super dirty HACK to make sure cavnasRef.current is set
+        window.setTimeout(() => {
+          console.log(canvasRef);
+          canvasRenderer.setCanvas(canvasRef.current);
+
+          if (canvasRef.current) {
+            console.log('ref available');
+            canvasRenderer.updateText(this.state.value);
+          }
+          else {
+            window.location.reload();
+          }
+        }, 5);
+      }
+      else {
+        canvasRenderer.updateText(this.state.value);
+      }
+
+    }
 
     return (
       <div className="system">
@@ -278,7 +375,8 @@ class InputArea extends React.Component {
         />
         {CONFIG.canvasHologram ?
           (
-            <canvas id="canvas">
+            <canvas id="canvas"
+              ref={canvasRef}>
             </canvas>
           )
           : (
