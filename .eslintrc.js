@@ -10,5 +10,8 @@ module.exports = {
   "globals": {
     "React": true,
     "ReactDOM": true
+  },
+  "rules": {
+    "no-console": "off"
   }
 }
