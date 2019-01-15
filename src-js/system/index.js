@@ -98,12 +98,14 @@ var CanvasRenderer = function () {
             charHeight = void 0;
         switch (charDetails.flip) {
           case 'horizontal':
+          case 'horizontal-vertical':
             {
               charWidth = lineHeight * aspectRatio;
               charHeight = lineHeight;
               break;
             }
           case 'vertical':
+          case 'vertical-horizontal':
             {
               charWidth = lineHeight / 2 * aspectRatio;
               charHeight = lineHeight / 2;
@@ -422,7 +424,7 @@ var InputArea = function (_React$Component2) {
     var _this6 = _possibleConstructorReturn(this, (InputArea.__proto__ || Object.getPrototypeOf(InputArea)).call(this, props));
 
     _this6.state = {
-      value: 'yo'
+      value: ''
     };
 
     _this6.handleKeyDown = _this6.handleKeyDown.bind(_this6);
@@ -463,6 +465,11 @@ var InputArea = function (_React$Component2) {
       // console.log(char);
     }
   }, {
+    key: 'handleBlur',
+    value: function handleBlur(event) {
+      event.target.focus();
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _this7 = this;
@@ -496,36 +503,11 @@ var InputArea = function (_React$Component2) {
       return React.createElement(
         'div',
         { className: 'system' },
-        React.createElement(
-          'h1',
-          null,
-          'Typo Replicator'
-        ),
-        React.createElement(
-          'section',
-          { id: 'nav-configuration' },
-          React.createElement('input', { id: 'input-vertical', type: 'checkbox' }),
-          React.createElement(
-            'label',
-            { htmlFor: 'input-vertical' },
-            'Vertikal?'
-          ),
-          React.createElement('input', { id: 'input-duplicate', type: 'checkbox', checked: true }),
-          ' Duplizieren?',
-          React.createElement('input', { id: 'input-flip', type: 'checkbox', checked: true }),
-          ' Flip?',
-          React.createElement('input', { id: 'input-color', type: 'text', value: 'turquoise' }),
-          React.createElement(
-            'label',
-            { htmlFor: 'input-color' },
-            'hexcolor'
-          ),
-          React.createElement('input', { id: 'input-button', type: 'button', value: 'Farbe Anwenden' })
-        ),
         React.createElement('input', { id: 'input-text', type: 'text', autoFocus: true,
           value: this.state.value,
           onKeyDown: this.handleKeyDown,
-          onChange: this.handleChange
+          onChange: this.handleChange,
+          onBlur: this.handleBlur
         }),
         CONFIG.canvasHologram ? React.createElement('canvas', { id: 'canvas',
           ref: canvasRef }) : React.createElement(
