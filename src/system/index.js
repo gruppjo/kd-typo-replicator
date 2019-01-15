@@ -13,9 +13,6 @@ class CanvasRenderer {
       canvasWidth: 0,
       canvasHeight: 0,
     };
-    this.resetState();
-  }
-  resetState() {
     this.config = {
       lineHeight: 50,
       paddingCharacter: 5,
@@ -23,6 +20,9 @@ class CanvasRenderer {
       repeat: 300
     };
 
+    this.resetState();
+  }
+  resetState() {
     this.state = {
       text: '',
       previousCharHeight: 0,
@@ -44,6 +44,10 @@ class CanvasRenderer {
 
   getCanvas() {
     return this.dom.canvas;
+  }
+
+  setRepeat(repeat) {
+    this.config.repeat = repeat;
   }
 
   updateText(text, repeat) {
@@ -400,11 +404,12 @@ class InputArea extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: ''
+      value: '',
     };
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleBlur = this.handleBlur.bind(this);
   }
 
   handleKeyDown(event) {
@@ -491,6 +496,7 @@ class InputArea extends React.Component {
           onChange={this.handleChange}
           onBlur={this.handleBlur}
         />
+        <Slider/>
         {CONFIG.canvasHologram ?
           (
             <canvas id="canvas"
@@ -505,5 +511,33 @@ class InputArea extends React.Component {
         }
       </div>
     );
+  }
+}
+
+class Slider extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      repeat: 300
+    };
+
+    this.handleRangeChange = this.handleRangeChange.bind(this);
+  }
+
+  handleRangeChange() {
+    const repeat = event.target.value;
+    this.setState({
+      repeat: repeat
+    });
+    canvasRenderer.setRepeat(repeat)
+  }
+
+  render() {
+    return (
+      <div className="slide-container">
+          <input type="range" min="50" max="1000" value={this.state.repeat} className="slider" id="myRange"
+          onChange={this.handleRangeChange}/>
+        </div>
+    )
   }
 }
