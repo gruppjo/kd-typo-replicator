@@ -23,23 +23,24 @@ var CanvasRenderer = function () {
       canvasWidth: 0,
       canvasHeight: 0
     };
+    this.config = {
+      lineHeight: 50,
+      paddingCharacter: 5,
+      paddingLine: 5,
+      repeat: 300
+    };
+
     this.resetState();
   }
 
   _createClass(CanvasRenderer, [{
     key: 'resetState',
     value: function resetState() {
-      this.config = {
-        lineHeight: 50,
-        paddingCharacter: 5,
-        paddingLine: 5,
-        repeat: 500
-      };
-
       this.state = {
         text: '',
         previousCharHeight: 0,
         previousCharWidth: 0,
+        previousCharFlipped: false,
         offsetX: 0,
         offsetY: 0
       };
@@ -58,6 +59,11 @@ var CanvasRenderer = function () {
     key: 'getCanvas',
     value: function getCanvas() {
       return this.dom.canvas;
+    }
+  }, {
+    key: 'setRepeat',
+    value: function setRepeat(repeat) {
+      this.config.repeat = repeat;
     }
   }, {
     key: 'updateText',
@@ -109,7 +115,7 @@ var CanvasRenderer = function () {
             {
               charWidth = lineHeight / 2 * aspectRatio;
               charHeight = lineHeight / 2;
-              characterOffsetY = lineHeight / 2;
+              characterOffsetY = 0;
               break;
             }
           default:
@@ -153,13 +159,44 @@ var CanvasRenderer = function () {
         _this.state.offsetY = offsetY;
         _this.state.previousCharHeight = charHeight;
         _this.state.previousCharWidth = charWidth;
+        _this.state.previousCharFlipped = repeat ? !_this.state.previousCharFlipped : false;
 
         // repeat
         if (charDetails.flip) {
           _this.startRepeat();
         }
       };
-      img.src = charData.charUrl;
+      var x = 1;
+      var y = 1;
+      switch (charDetails.flip) {
+        case 'horizontal':
+          {
+            x = !repeat ? -1 : this.state.previousCharFlipped ? -1 : 1;
+            break;
+          }
+        case 'vertical':
+          {
+            y = !repeat ? -1 : this.state.previousCharFlipped ? -1 : 1;
+            break;
+          }
+        case 'horizontal-vertical':
+        case 'vertical-horizontal':
+          {
+            x = !repeat ? -1 : this.state.previousCharFlipped ? -1 : 1;
+            y = !repeat ? -1 : this.state.previousCharFlipped ? -1 : 1;
+            break;
+          }
+        default:
+          {
+            x = 1;
+            y = 1;
+          }
+      }
+
+      var dataUri = 'data:image/svg+xml;utf8,' + this.charsService.charsData[char].svgText.replace(/\r?\n|\r/g, '').replace(/\s\s+/g, ' ').replace('style="', 'style="transform: scale(' + x + ', ' + y + '); fill: #000 !important;');
+
+      img.src = dataUri;
+      console.log(dataUri);
     }
   }, {
     key: 'startRepeat',
@@ -368,7 +405,7 @@ var CharsService = function () {
       if (!charData.charDetails.flip) {
         return '' + charData.svgText;
       }
-      // non-mirrored character
+      // mirrored character
       else {
           return '' + (invert ? charData.svgText : this.svgFlip(charData.svgText, flip));
         }
@@ -429,6 +466,7 @@ var InputArea = function (_React$Component2) {
 
     _this6.handleKeyDown = _this6.handleKeyDown.bind(_this6);
     _this6.handleChange = _this6.handleChange.bind(_this6);
+    _this6.handleBlur = _this6.handleBlur.bind(_this6);
     return _this6;
   }
 
@@ -509,6 +547,7 @@ var InputArea = function (_React$Component2) {
           onChange: this.handleChange,
           onBlur: this.handleBlur
         }),
+        React.createElement(Slider, null),
         CONFIG.canvasHologram ? React.createElement('canvas', { id: 'canvas',
           ref: canvasRef }) : React.createElement(
           'div',
@@ -520,4 +559,44 @@ var InputArea = function (_React$Component2) {
   }]);
 
   return InputArea;
+}(React.Component);
+
+var Slider = function (_React$Component3) {
+  _inherits(Slider, _React$Component3);
+
+  function Slider(props) {
+    _classCallCheck(this, Slider);
+
+    var _this8 = _possibleConstructorReturn(this, (Slider.__proto__ || Object.getPrototypeOf(Slider)).call(this, props));
+
+    _this8.state = {
+      repeat: 300
+    };
+
+    _this8.handleRangeChange = _this8.handleRangeChange.bind(_this8);
+    return _this8;
+  }
+
+  _createClass(Slider, [{
+    key: 'handleRangeChange',
+    value: function handleRangeChange() {
+      var repeat = event.target.value;
+      this.setState({
+        repeat: repeat
+      });
+      canvasRenderer.setRepeat(repeat);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return React.createElement(
+        'div',
+        { className: 'slide-container' },
+        React.createElement('input', { type: 'range', min: '50', max: '1000', value: this.state.repeat, className: 'slider', id: 'myRange',
+          onChange: this.handleRangeChange })
+      );
+    }
+  }]);
+
+  return Slider;
 }(React.Component);
