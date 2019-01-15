@@ -77,12 +77,14 @@ class CanvasRenderer {
       let characterOffsetY = 0;
       let charWidth, charHeight;
       switch (charDetails.flip) {
-        case 'horizontal': {
+        case 'horizontal':
+        case 'horizontal-vertical': {
           charWidth = lineHeight * aspectRatio;
           charHeight = lineHeight;
           break;
         }
-        case 'vertical': {
+        case 'vertical':
+        case 'vertical-horizontal': {
           charWidth = lineHeight / 2 * aspectRatio;
           charHeight = lineHeight / 2;
           characterOffsetY = lineHeight / 2;
@@ -366,7 +368,7 @@ class InputArea extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: 'yo'
+      value: ''
     };
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -403,6 +405,10 @@ class InputArea extends React.Component {
     // console.log(char);
   }
 
+  handleBlur(event) {
+    event.target.focus();
+  }
+
   render() {
     let canvasRef;
 
@@ -435,20 +441,23 @@ class InputArea extends React.Component {
 
     return (
       <div className="system">
-        <h1>Typo Replicator</h1>
-        <section id="nav-configuration">
-          <input id="input-vertical" type="checkbox" />
-          <label htmlFor="input-vertical">Vertikal?</label>
-          <input id="input-duplicate" type="checkbox" checked /> Duplizieren?
-          <input id="input-flip" type="checkbox" checked /> Flip?
-          <input id="input-color" type="text" value="turquoise" />
-          <label htmlFor="input-color">hexcolor</label>
-          <input id="input-button" type="button" value="Farbe Anwenden" />
-        </section>
+        {
+        // <h1>Typo Replicator</h1>
+        // <section id="nav-configuration">
+        //   <input id="input-vertical" type="checkbox" />
+        //   <label htmlFor="input-vertical">Vertikal?</label>
+        //   <input id="input-duplicate" type="checkbox" checked /> Duplizieren?
+        //   <input id="input-flip" type="checkbox" checked /> Flip?
+        //   <input id="input-color" type="text" value="turquoise" />
+        //   <label htmlFor="input-color">hexcolor</label>
+        //   <input id="input-button" type="button" value="Farbe Anwenden" />
+        // </section>
+        }
         <input id="input-text" type="text" autoFocus
           value={this.state.value}
           onKeyDown={this.handleKeyDown}
           onChange={this.handleChange}
+          onBlur={this.handleBlur}
         />
         {CONFIG.canvasHologram ?
           (
