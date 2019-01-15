@@ -20,13 +20,14 @@ class CanvasRenderer {
       lineHeight: 50,
       paddingCharacter: 5,
       paddingLine: 5,
-      repeat: 500
+      repeat: 300
     };
 
     this.state = {
       text: '',
       previousCharHeight: 0,
       previousCharWidth: 0,
+      previousCharFlipped: false,
       offsetX: 0,
       offsetY: 0
     };
@@ -87,7 +88,7 @@ class CanvasRenderer {
         case 'vertical-horizontal': {
           charWidth = lineHeight / 2 * aspectRatio;
           charHeight = lineHeight / 2;
-          characterOffsetY = lineHeight / 2;
+          characterOffsetY = 0;
           break;
         }
         default: {
@@ -131,13 +132,44 @@ class CanvasRenderer {
       this.state.offsetY = offsetY;
       this.state.previousCharHeight = charHeight;
       this.state.previousCharWidth = charWidth;
+      this.state.previousCharFlipped = repeat ? !this.state.previousCharFlipped : false;
 
       // repeat
       if (charDetails.flip) {
         this.startRepeat();
       }
     };
-    img.src = charData.charUrl;
+    let x = 1;
+    let y = 1;
+    switch (charDetails.flip) {
+      case 'horizontal': {
+        x = !repeat ? -1 :
+          (this.state.previousCharFlipped ? -1 : 1);
+        break;
+      }
+      case 'vertical': {
+        y = !repeat ? -1 :
+          (this.state.previousCharFlipped ? -1 : 1);
+        break;
+      }
+      case 'horizontal-vertical':
+      case 'vertical-horizontal': {
+        x = !repeat ? -1 :
+        (this.state.previousCharFlipped ? -1 : 1);
+        y = !repeat ? -1 :
+        (this.state.previousCharFlipped ? -1 : 1);
+        break;
+      }
+      default: {
+        x = 1;
+        y = 1;
+      }
+    }
+
+    let dataUri = `data:image/svg+xml;utf8,${this.charsService.charsData[char].svgText.replace(/\r?\n|\r/g, '').replace(/\s\s+/g, ' ').replace(`style="`, `style="transform: scale(${x}, ${y}); fill: #000 !important;`)}`;
+
+    img.src = dataUri;
+    console.log(dataUri);
   }
 
   startRepeat() {
@@ -327,7 +359,7 @@ class CharsService {
     if (!charData.charDetails.flip) {
       return `${charData.svgText}`;
     }
-    // non-mirrored character
+    // mirrored character
     else {
       return `${invert ? charData.svgText : this.svgFlip(charData.svgText, flip)}`;
     }
