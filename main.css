@@ -18,9 +18,12 @@ h1 {
 #input-text {
   height: 4rem;
   font-size: 2rem;
-  border: 2px solid black;
+  border: none;
   margin-top: .5rem;
   margin-bottom: 1rem;
+}
+#input-text:focus {
+  outline: none;
 }
 
 #nav-configuration {
