@@ -25,7 +25,8 @@ class CanvasRenderer {
 
     this.state = {
       text: '',
-      ctx: null,
+      previousCharHeight: 0,
+      previousCharWidth: 0,
       offsetX: 0,
       offsetY: 0
     };
@@ -104,6 +105,9 @@ class CanvasRenderer {
           offsetY += charHeight;
         }
       }
+      if (!repeat) {
+        offsetX = offsetX + this.state.previousCharWidth + this.config.paddingCharacter;
+      }
 
       if (offsetX + charWidth > canvasWidth) {
         offsetX = 0;
@@ -120,12 +124,11 @@ class CanvasRenderer {
       console.log('width', img.width, charData);
 
       // update state
-      if (!repeat) {
-        offsetX = offsetX + charWidth + this.config.paddingCharacter;
-      }
       this.state.text = text;
       this.state.offsetX = offsetX;
       this.state.offsetY = offsetY;
+      this.state.previousCharHeight = charHeight;
+      this.state.previousCharWidth = charWidth;
 
       // repeat
       if (charDetails.flip) {
