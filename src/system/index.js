@@ -38,10 +38,22 @@ class CanvasRenderer {
   setCanvas(canvas) {
     console.log('CanvasRenderer.canvas', canvas);
     this.dom.canvas = canvas;
+
+    // retina support from - https://www.html5rocks.com/en/tutorials/canvas/hidpi/
+    // Get the device pixel ratio, falling back to 1.
+    const dpr = window.devicePixelRatio || 1;
+
     const boundingRect = canvas.getBoundingClientRect();
     this.dom.canvasWidth = canvas.width = boundingRect.width;
     this.dom.canvasHeight = canvas.height = boundingRect.height;
-    this.dom.ctx = canvas.getContext('2d');
+    const ctx = this.dom.ctx = canvas.getContext('2d');
+
+    // size * the device pixel ratio.
+    canvas.width = boundingRect.width * dpr;
+    canvas.height = boundingRect.height * dpr;
+
+    // don't have to worry about the difference.
+    ctx.scale(dpr, dpr);
   }
 
   getCanvas() {
