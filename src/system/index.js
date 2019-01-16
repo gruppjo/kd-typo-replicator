@@ -1,7 +1,8 @@
 'use strict';
 
 const CONFIG = {
-  canvasHologram: true
+  canvasHologram: true,
+  fontType: 'simplon'
 };
 
 class CanvasRenderer {
@@ -14,7 +15,8 @@ class CanvasRenderer {
       canvasHeight: 0,
     };
     this.config = {
-      lineHeight: 50,
+      lineHeight: 40,
+      spaceWidth: 20,
       paddingCharacter: 5,
       paddingLine: 5,
       repeat: 300
@@ -70,110 +72,117 @@ class CanvasRenderer {
     // char & its data
     const char = text[text.length - 1];
     const charData = charsService.charsData[char];
-    const charDetails = charData.charDetails;
 
-    const img = new Image();
-    img.onload = () => {
-      console.log('draw image');
-      // charHeight/Width, aspectRatio
-      // characterOffsetY
-      const aspectRatio = img.width / img.height;
-      const lineHeight = this.config.lineHeight;
-      let characterOffsetY = 0;
-      let charWidth, charHeight;
+    if (!charData) { // like space
+      this.state.offsetX += this.config.spaceWidth;
+      console.log('here');
+    }
+    else {
+      const charDetails = charData.charDetails;
+      const img = new Image();
+      img.onload = () => {
+        console.log('draw image');
+        // charHeight/Width, aspectRatio
+        // characterOffsetY
+        const aspectRatio = img.width / img.height;
+        const lineHeight = this.config.lineHeight;
+        let characterOffsetY = 0;
+        let charWidth, charHeight;
+        switch (charDetails.flip) {
+          case 'horizontal':
+          case 'horizontal-vertical': {
+            charWidth = lineHeight * aspectRatio;
+            charHeight = lineHeight;
+            break;
+          }
+          case 'vertical':
+          case 'vertical-horizontal': {
+            charWidth = lineHeight / 2 * aspectRatio;
+            charHeight = lineHeight / 2;
+            characterOffsetY = 0;
+            break;
+          }
+          default: {
+            charWidth = lineHeight * aspectRatio;
+            charHeight = lineHeight;
+          }
+        }
+        // offsets, direction & collision detection
+        let offsetX = this.state.offsetX;
+        let offsetY = this.state.offsetY;
+
+        if (repeat) {
+          if (charDetails.flip.startsWith('horizontal')) {
+            offsetX += charWidth;
+          }
+          else {
+            offsetY += charHeight;
+          }
+        }
+        if (!repeat) {
+          offsetX = offsetX + this.state.previousCharWidth + this.config.paddingCharacter;
+        }
+
+        if (offsetX + charWidth > canvasWidth) {
+          offsetX = 0;
+          offsetY += lineHeight + this.config.paddingLine;
+        }
+        if (offsetY + lineHeight > canvasHeight) {
+          offsetX += this.state.previousCharWidth + this.config.paddingCharacter;
+          offsetY = 0;
+        }
+
+        // draw
+        ctx.imageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.drawImage(img, offsetX, offsetY + characterOffsetY, charWidth, charHeight);
+        console.log('width', img.width, charData);
+
+        // update state
+        this.state.text = text;
+        this.state.offsetX = offsetX;
+        this.state.offsetY = offsetY;
+        this.state.previousCharHeight = charHeight;
+        this.state.previousCharWidth = charWidth;
+        this.state.previousCharFlipped = repeat ? !this.state.previousCharFlipped : false;
+
+        // repeat
+        if (charDetails.flip) {
+          this.startRepeat();
+        }
+      };
+      let x = 1;
+      let y = 1;
       switch (charDetails.flip) {
-        case 'horizontal':
-        case 'horizontal-vertical': {
-          charWidth = lineHeight * aspectRatio;
-          charHeight = lineHeight;
+        case 'horizontal': {
+          x = !repeat ? -1 :
+            (this.state.previousCharFlipped ? -1 : 1);
           break;
         }
-        case 'vertical':
+        case 'vertical': {
+          y = !repeat ? -1 :
+            (this.state.previousCharFlipped ? -1 : 1);
+          break;
+        }
+        case 'horizontal-vertical':
         case 'vertical-horizontal': {
-          charWidth = lineHeight / 2 * aspectRatio;
-          charHeight = lineHeight / 2;
-          characterOffsetY = 0;
+          x = !repeat ? -1 :
+          (this.state.previousCharFlipped ? -1 : 1);
+          y = !repeat ? -1 :
+          (this.state.previousCharFlipped ? -1 : 1);
           break;
         }
         default: {
-          charWidth = lineHeight * aspectRatio;
-          charHeight = lineHeight;
+          x = 1;
+          y = 1;
         }
       }
-      // offsets, direction & collision detection
-      let offsetX = this.state.offsetX;
-      let offsetY = this.state.offsetY;
 
-      if (repeat) {
-        if (charDetails.flip.startsWith('horizontal')) {
-          offsetX += charWidth;
-        }
-        else {
-          offsetY += charHeight;
-        }
-      }
-      if (!repeat) {
-        offsetX = offsetX + this.state.previousCharWidth + this.config.paddingCharacter;
-      }
+      let dataUri = `data:image/svg+xml;utf8,${this.charsService.charsData[char].svgText.replace(/\r?\n|\r/g, '').replace(/\s\s+/g, ' ').replace(`style="`, `style="transform: scale(${x}, ${y}); fill: #000 !important;`)}`;
 
-      if (offsetX + charWidth > canvasWidth) {
-        offsetX = 0;
-        offsetY += lineHeight + this.config.paddingLine;
-      }
-      if (offsetY + lineHeight > canvasHeight) {
-        offsetY = 0;
-      }
-
-      // draw
-      ctx.imageSmoothingEnabled = false;
-      ctx.webkitImageSmoothingEnabled = false;
-      ctx.drawImage(img, offsetX, offsetY + characterOffsetY, charWidth, charHeight);
-      console.log('width', img.width, charData);
-
-      // update state
-      this.state.text = text;
-      this.state.offsetX = offsetX;
-      this.state.offsetY = offsetY;
-      this.state.previousCharHeight = charHeight;
-      this.state.previousCharWidth = charWidth;
-      this.state.previousCharFlipped = repeat ? !this.state.previousCharFlipped : false;
-
-      // repeat
-      if (charDetails.flip) {
-        this.startRepeat();
-      }
-    };
-    let x = 1;
-    let y = 1;
-    switch (charDetails.flip) {
-      case 'horizontal': {
-        x = !repeat ? -1 :
-          (this.state.previousCharFlipped ? -1 : 1);
-        break;
-      }
-      case 'vertical': {
-        y = !repeat ? -1 :
-          (this.state.previousCharFlipped ? -1 : 1);
-        break;
-      }
-      case 'horizontal-vertical':
-      case 'vertical-horizontal': {
-        x = !repeat ? -1 :
-        (this.state.previousCharFlipped ? -1 : 1);
-        y = !repeat ? -1 :
-        (this.state.previousCharFlipped ? -1 : 1);
-        break;
-      }
-      default: {
-        x = 1;
-        y = 1;
-      }
+      img.src = dataUri;
+      console.log(dataUri);
     }
-
-    let dataUri = `data:image/svg+xml;utf8,${this.charsService.charsData[char].svgText.replace(/\r?\n|\r/g, '').replace(/\s\s+/g, ' ').replace(`style="`, `style="transform: scale(${x}, ${y}); fill: #000 !important;`)}`;
-
-    img.src = dataUri;
-    console.log(dataUri);
   }
 
   startRepeat() {
@@ -195,7 +204,13 @@ class CharsService {
   // .getCharJSX
   constructor() {
     this.availableCharsDetails = {
+      ' ': {
+        noSvg: true
+      },
       a: {
+        flip: 'horizontal',
+      },
+      ä: {
         flip: 'horizontal',
       },
       b: {
@@ -235,27 +250,33 @@ class CharsService {
         flip: 'horizontal',
       },
       n: {
-        flip: 'horizontal-vertical'
+        flip: false
       },
       o: {
+        flip: 'vertical'
+      },
+      ö: {
         flip: 'vertical'
       },
       p: {
         flip: false
       },
       q: {
-        flip: false
+        flip: 'horizontal'
       },
       r: {
         flip: false
       },
       s: {
-        flip: 'vertical-horizontal'
+        flip: false
       },
       t: {
         flip: 'horizontal'
       },
       u: {
+        flip: 'horizontal'
+      },
+      ü: {
         flip: 'horizontal'
       },
       v: {
@@ -271,7 +292,7 @@ class CharsService {
         flip: 'horizontal'
       },
       z: {
-        flip: 'vertical-horizontal'
+        flip: false
       }
     };
     this.availableCharsJoined = Object.keys(this.availableCharsDetails).join('');
@@ -296,14 +317,14 @@ class CharsService {
     for (let i = 0; i < this.availableCharsJoined.length; i++) {
       const char = this.availableCharsJoined[i];
       const charDetails = this.availableCharsDetails[char];
-      if (!charDetails) {
+      if (!charDetails || charDetails.noSvg) {
         continue;
       }
 
       let request;
       // fetch svg file as text
-      const charUrl = `./assets/System_Alphabet_${char.toUpperCase()}.svg`;
-      request = fetch(`./assets/System_Alphabet_${char.toUpperCase()}.svg`)
+      const charUrl = `./assets/${CONFIG.fontType}/${char.toUpperCase()}.svg`;
+      request = fetch(charUrl)
       .then((response) => {
         return response.text();
       })
@@ -449,9 +470,12 @@ class InputArea extends React.Component {
   render() {
     let canvasRef;
 
-    const svgChars = this.state.value.split('').map((char) => {
-      return charsService.getCharJSX(char);
-    });
+    let svgChars;
+    if (!CONFIG.canvasHologram) {
+      svgChars = this.state.value.split('').map((char) => {
+        return charsService.getCharJSX(char);
+      });
+    }
 
     if (CONFIG.canvasHologram) {
       if (!canvasRenderer.getCanvas()) {
@@ -535,7 +559,7 @@ class Slider extends React.Component {
   render() {
     return (
       <div className="slide-container">
-          <input type="range" min="50" max="1000" value={this.state.repeat} className="slider" id="myRange"
+          <input type="range" min="50" max="700" value={this.state.repeat} className="slider" id="myRange"
           onChange={this.handleRangeChange}/>
         </div>
     )
