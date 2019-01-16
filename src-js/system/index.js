@@ -90,13 +90,12 @@ var CanvasRenderer = function () {
       }
 
       // char & its data
-      var char = text[text.length - 1];
+      var char = text[text.length - 1].toLowerCase();
       var charData = charsService.charsData[char];
 
       if (!charData) {
         // like space
         this.state.offsetX += this.config.spaceWidth;
-        console.log('here');
       } else {
         var charDetails = charData.charDetails;
         var img = new Image();
@@ -362,7 +361,7 @@ var CharsService = function () {
 
         var request = void 0;
         // fetch svg file as text
-        var charUrl = './assets/' + CONFIG.fontType + '/' + char.toUpperCase() + '.svg';
+        var charUrl = './assets/' + CONFIG.fontType + '/' + char.toUpperCase().replace('Ä', 'AE').replace('Ö', 'OE').replace('Ü', 'UE') + '.svg';
         request = fetch(charUrl).then(function (response) {
           return response.text();
         })
