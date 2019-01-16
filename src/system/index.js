@@ -70,12 +70,11 @@ class CanvasRenderer {
     }
 
     // char & its data
-    const char = text[text.length - 1];
+    const char = text[text.length - 1].toLowerCase();
     const charData = charsService.charsData[char];
 
     if (!charData) { // like space
       this.state.offsetX += this.config.spaceWidth;
-      console.log('here');
     }
     else {
       const charDetails = charData.charDetails;
@@ -323,7 +322,7 @@ class CharsService {
 
       let request;
       // fetch svg file as text
-      const charUrl = `./assets/${CONFIG.fontType}/${char.toUpperCase()}.svg`;
+      const charUrl = `./assets/${CONFIG.fontType}/${char.toUpperCase().replace('Ä', 'AE').replace('Ö', 'OE').replace('Ü', 'UE')}.svg`;
       request = fetch(charUrl)
       .then((response) => {
         return response.text();
