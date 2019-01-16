@@ -70,7 +70,7 @@ class CanvasRenderer {
     }
 
     // char & its data
-    const char = text[text.length - 1];
+    const char = text[text.length - 1].toLowerCase();
     const charData = charsService.charsData[char];
 
     if (!charData) { // like space
