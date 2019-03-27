@@ -38,10 +38,22 @@ class CanvasRenderer {
   setCanvas(canvas) {
     console.log('CanvasRenderer.canvas', canvas);
     this.dom.canvas = canvas;
+
+    // retina support from - https://www.html5rocks.com/en/tutorials/canvas/hidpi/
+    // Get the device pixel ratio, falling back to 1.
+    const dpr = window.devicePixelRatio || 1;
+
     const boundingRect = canvas.getBoundingClientRect();
     this.dom.canvasWidth = canvas.width = boundingRect.width;
     this.dom.canvasHeight = canvas.height = boundingRect.height;
-    this.dom.ctx = canvas.getContext('2d');
+    const ctx = this.dom.ctx = canvas.getContext('2d');
+
+    // size * the device pixel ratio.
+    canvas.width = boundingRect.width * dpr;
+    canvas.height = boundingRect.height * dpr;
+
+    // don't have to worry about the difference.
+    ctx.scale(dpr, dpr);
   }
 
   getCanvas() {
@@ -177,7 +189,8 @@ class CanvasRenderer {
         }
       }
 
-      let dataUri = `data:image/svg+xml;utf8,${this.charsService.charsData[char].svgText.replace(/\r?\n|\r/g, '').replace(/\s\s+/g, ' ').replace(`style="`, `style="transform: scale(${x}, ${y}); fill: #000 !important;`)}`;
+      let dataUri = `data:image/svg+xml;utf8,${encodeURIComponent(this.charsService.charsData[char].svgText.replace(/\r?\n|\r/g, '').replace(/\s\s+/g, ' ').replace(`style="`, `style="transform: scale(${x}, ${y}); fill: #000 !important;`))}`;
+      // fix: encodeURIComponent because onload wouldn't fire in chrome anymore - https://stackoverflow.com/questions/43491033/img-onload-not-firing-when-dynamically-setting-src-to-datauri
 
       img.src = dataUri;
       console.log(dataUri);

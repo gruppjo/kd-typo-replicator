@@ -6,6 +6,24 @@
     <link rel="stylesheet" type="text/css" href="main.css">
   </head>
   <body>
+    <!-- BROWSER DETECTION, sorry don't hit me -->
+    <div id="browser">
+      <div style="text-align: center;">
+        Benutzen sie Chrome Browser für diese Anwendung
+        <br>
+        <br>
+        <a href="https://www.google.com/intl/de_ALL/chrome/">
+            <img style="width: 750px; max-width: 100%;" src="assets/chrome.jpg">
+        </a>
+      </div>
+    </div>
+    <script>
+      // BROWSER DETECTION, sorry don't hit me
+      if(navigator.userAgent.indexOf("Chrome") !== -1) {
+        document.getElementById('browser').style.display = 'none';
+      }
+    </script>
+
     <!-- react implementation -->
     <div id="system"></div>
 
