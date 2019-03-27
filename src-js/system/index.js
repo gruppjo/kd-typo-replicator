@@ -212,7 +212,8 @@ var CanvasRenderer = function () {
             }
         }
 
-        var dataUri = 'data:image/svg+xml;utf8,' + this.charsService.charsData[char].svgText.replace(/\r?\n|\r/g, '').replace(/\s\s+/g, ' ').replace('style="', 'style="transform: scale(' + x + ', ' + y + '); fill: #000 !important;');
+        var dataUri = 'data:image/svg+xml;utf8,' + encodeURIComponent(this.charsService.charsData[char].svgText.replace(/\r?\n|\r/g, '').replace(/\s\s+/g, ' ').replace('style="', 'style="transform: scale(' + x + ', ' + y + '); fill: #000 !important;'));
+        // fix: encodeURIComponent because onload wouldn't fire in chrome anymore - https://stackoverflow.com/questions/43491033/img-onload-not-firing-when-dynamically-setting-src-to-datauri
 
         img.src = dataUri;
         console.log(dataUri);
